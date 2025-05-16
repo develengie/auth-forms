@@ -2,6 +2,7 @@ import { useState, type ChangeEvent, type FormEvent } from 'react';
 import TextInput from '../../common/TextInput/TextInput';
 import Button from '../../common/Button/Button';
 import Icon from '../../../assets/icon.png';
+import { validator } from '../../../utils/validator';
 import type { SignupData } from '../../../models/models';
 import './Signup.scss';
 
@@ -19,6 +20,10 @@ const Signup = ({ onSubmit }: SignupProps) => {
         confirmPassword: '',
     });
 
+    const isValidEmail = validator.isEmail(data.email);
+    const isValidPassword = validator.min(data.password);
+    const isConfirmedPassword = data.password === data.confirmPassword;
+
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         setData(prevState => ({
             ...prevState,
@@ -28,15 +33,18 @@ const Signup = ({ onSubmit }: SignupProps) => {
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        onSubmit(data);
-        setData({
-            name: '',
-            nickname: '',
-            email: '',
-            sex: 'male',
-            password: '',
-            confirmPassword: '',
-        });
+
+        if (isValidEmail && isValidPassword && isConfirmedPassword) {
+            onSubmit(data);
+            setData({
+                name: '',
+                nickname: '',
+                email: '',
+                sex: 'male',
+                password: '',
+                confirmPassword: '',
+            });
+        }
     };
 
     return (
@@ -130,7 +138,12 @@ const Signup = ({ onSubmit }: SignupProps) => {
                 value={data.confirmPassword}
                 onChange={handleChange}
             />
-            <Button type="submit" isDisabled={false}>
+            <Button
+                type="submit"
+                isDisabled={
+                    !isValidEmail || !isValidPassword || !isConfirmedPassword
+                }
+            >
                 Войти
             </Button>
         </form>

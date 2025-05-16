@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import TextInput from '../../common/TextInput/TextInput';
 import Button from '../../common/Button/Button';
+import { validator } from '../../../utils/validator';
 import type { SigninData } from '../../../models/models';
 import './Signin.scss';
 
@@ -14,6 +15,9 @@ const Signin = ({ onSubmit }: SigninProps) => {
         password: '',
     });
 
+    const isValidEmail = validator.isEmail(data.email);
+    const isValidPassword = validator.min(data.password);
+
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         setData(prevState => ({
             ...prevState,
@@ -23,11 +27,14 @@ const Signin = ({ onSubmit }: SigninProps) => {
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        onSubmit(data);
-        setData({
-            email: '',
-            password: '',
-        });
+
+        if (isValidEmail && isValidPassword) {
+            onSubmit(data);
+            setData({
+                email: '',
+                password: '',
+            });
+        }
     };
 
     return (
@@ -59,7 +66,10 @@ const Signin = ({ onSubmit }: SigninProps) => {
                 value={data.password}
                 onChange={handleChange}
             />
-            <Button type="submit" isDisabled={false}>
+            <Button
+                type="submit"
+                isDisabled={!isValidEmail || !isValidPassword}
+            >
                 Войти
             </Button>
         </form>
